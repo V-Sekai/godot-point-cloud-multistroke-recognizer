@@ -109,10 +109,10 @@ class QDollarRecognizer:
 		var LUT: Array
 
 		func scale(points: Array[RecognizerPoint]) -> Array[RecognizerPoint]:
-			var minX = INF
-			var maxX = -INF
-			var minY = INF
-			var maxY = -INF
+			var minX: float = INF
+			var maxX: float = -INF
+			var minY: float = INF
+			var maxY: float = -INF
 			for point in points:
 				minX = min(minX, point.x)
 				minY = min(minY, point.y)
@@ -126,9 +126,9 @@ class QDollarRecognizer:
 				newpoints.push_back(RecognizerPoint.new(qx, qy, point.id))
 			return newpoints
 
-		func centroid(points):
-			var x = 0.0
-			var y = 0.0
+		func centroid(points) -> RecognizerPoint:
+			var x: float = 0.0
+			var y: float = 0.0
 			for point in points:
 				x += point.x
 				y += point.y
@@ -136,7 +136,7 @@ class QDollarRecognizer:
 			y /= points.size()
 			return RecognizerPoint.new(x, y, 0)
 
-		func translate_to(points: Array[RecognizerPoint], pt: RecognizerPoint):  # translates points' centroid to points
+		func translate_to(points: Array[RecognizerPoint], pt: RecognizerPoint) -> Array[RecognizerPoint]:  # translates points' centroid to points
 			var c = centroid(points)
 			var newpoints: Array[RecognizerPoint]
 			newpoints.resize(points.size())
@@ -158,7 +158,7 @@ class QDollarRecognizer:
 					)
 			return d
 
-		func resample(p_points: Array[RecognizerPoint], n: int):
+		func resample(p_points: Array[RecognizerPoint], n: int) -> Array[RecognizerPoint]:
 			var I = path_length(p_points) / (n - 1)  # interval length
 			var D = 0.0
 			var new_points: Array[RecognizerPoint]
@@ -186,13 +186,13 @@ class QDollarRecognizer:
 				)
 			return new_points
 
-		func MakeIntCoords(points: Array[RecognizerPoint]):
+		func _make_integer_coordinates(points: Array[RecognizerPoint]) -> Array[RecognizerPoint]:
 			for point in points:
 				point.int_x = round((point.x + 1.0) / 2.0 * (MaxIntCoord - 1))
 				point.int_y = round((point.y + 1.0) / 2.0 * (MaxIntCoord - 1))
 			return points;
 			
-		func ComputeLUT(points) -> Array:
+		func _compute_lut(points) -> Array:
 			var LUT: Array
 			LUT.resize(LUTSize)
 			for lut in LUTSize:
@@ -220,11 +220,11 @@ class QDollarRecognizer:
 			_points = resample(_points, NUMBER_POINTS)
 			_points = scale(_points)
 			_points = translate_to(_points, _origin)
-			_points = MakeIntCoords(_points); # fills in (IntX, IntY) values
-			LUT = ComputeLUT(_points);
+			_points = _make_integer_coordinates(_points); # fills in (IntX, IntY) values
+			LUT = _compute_lut(_points);
 
 
-	func ComputeLowerBound(pts1, pts2, step, LUT):
+	func _compute_lower_bound(pts1, pts2, step, LUT) -> Array:
 		var n = pts1.size();
 		var LB: Array
 		LB.resize(floor(n / step) + 1)
@@ -247,21 +247,21 @@ class QDollarRecognizer:
 			j = j + 1
 		return LB;
 
-	func _cloud_match(candidate: PointCloud, template: PointCloud, minSoFar: float) -> float:
+	func _cloud_match(candidate: PointCloud, template: PointCloud, minimum_so_far: float) -> float:
 		var n: int = candidate._points.size()
 		var step: int = floor(pow(n, 0.5))
-		var LB1: Array = ComputeLowerBound(candidate._points, template._points, step, template.LUT)
-		var LB2: Array = ComputeLowerBound(template._points, candidate._points, step, candidate.LUT)
+		var LB1: Array = _compute_lower_bound(candidate._points, template._points, step, template.LUT)
+		var LB2: Array = _compute_lower_bound(template._points, candidate._points, step, candidate.LUT)
 		var j = 0
 		for i in range(0, n, step):
-			if LB1[j] < minSoFar:
-				minSoFar = min(minSoFar, _cloud_distance(candidate._points, template._points, i, minSoFar))
-			if LB2[j] < minSoFar:
-				minSoFar = min(minSoFar, _cloud_distance(template._points, candidate._points, i, minSoFar))
+			if LB1[j] < minimum_so_far:
+				minimum_so_far = min(minimum_so_far, _cloud_distance(candidate._points, template._points, i, minimum_so_far))
+			if LB2[j] < minimum_so_far:
+				minimum_so_far = min(minimum_so_far, _cloud_distance(template._points, candidate._points, i, minimum_so_far))
 			j = j + 1
-		return minSoFar
+		return minimum_so_far
 
-	func _cloud_distance(pts1: Array[RecognizerPoint], pts2: Array[RecognizerPoint], start, minSoFar) -> float:
+	func _cloud_distance(pts1: Array[RecognizerPoint], pts2: Array[RecognizerPoint], start, minimum_so_far) -> float:
 		var n: int = pts1.size();
 		var unmatched: Array = Array(); # indices for pts2 that are not matched
 		unmatched.resize(n)
@@ -280,7 +280,7 @@ class QDollarRecognizer:
 					u = j
 			unmatched.insert(u, 1) # remove item at index 'u'
 			sum += weight * b;
-			if sum >= minSoFar:
+			if sum >= minimum_so_far:
 				return sum; # early abandoning
 			weight = weight - 1;
 			i = (i + 1) % n;
