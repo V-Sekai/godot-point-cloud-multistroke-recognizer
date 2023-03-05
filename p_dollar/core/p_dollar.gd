@@ -91,7 +91,7 @@ class PointCloud:
 	var _points: Array[RecognizerPoint] = []
 	var _origin: RecognizerPoint = RecognizerPoint.new(0, 0, 0)
 
-	func Scale(points: Array[RecognizerPoint]) -> Array[RecognizerPoint]:
+	func scale(points: Array[RecognizerPoint]) -> Array[RecognizerPoint]:
 		var minX = INF
 		var maxX = -INF
 		var minY = INF
@@ -109,7 +109,7 @@ class PointCloud:
 			newpoints.push_back(RecognizerPoint.new(qx, qy, point.id))
 		return newpoints
 
-	func Centroid(points):
+	func centroid(points):
 		var x = 0.0
 		var y = 0.0
 		for point in points:
@@ -119,8 +119,8 @@ class PointCloud:
 		y /= points.size()
 		return RecognizerPoint.new(x, y, 0)
 
-	func TranslateTo(points: Array[RecognizerPoint], pt: RecognizerPoint):  # translates points' centroid to points
-		var c = Centroid(points)
+	func translate_to(points: Array[RecognizerPoint], pt: RecognizerPoint):  # translates points' centroid to points
+		var c = centroid(points)
 		var newpoints: Array[RecognizerPoint]
 		newpoints.resize(points.size())
 		for point_i in range(points.size()):
@@ -173,25 +173,25 @@ class PointCloud:
 		_name = p_name
 		_points = p_points
 		_points = resample(_points, NUMBER_POINTS)
-		_points = Scale(_points)
-		_points = TranslateTo(_points, _origin)
+		_points = scale(_points)
+		_points = translate_to(_points, _origin)
 
 
 class PDollarRecognizer:
 	var _point_clouds: Array[PointCloud]
 
-	func GreedyCloudMatch(points: Array[RecognizerPoint], P: PointCloud) -> float:
+	func greedy_cloud_match(points: Array[RecognizerPoint], P: PointCloud) -> float:
 		var minimum = INF
 		var e = 0.50
 		var step: int = floor(pow(points.size(), 1.0 - e))
 		for i in range(0, points.size(), step):
 			var point = points[i]
-			var d1: float = CloudDistance(points, P._points, i)
-			var d2: float = CloudDistance(P._points, points, i)
+			var d1: float = cloud_distance(points, P._points, i)
+			var d2: float = cloud_distance(P._points, points, i)
 			minimum = min(minimum, min(d1, d2))
 		return minimum
 
-	func CloudDistance(pts1: Array[RecognizerPoint], pts2: Array[RecognizerPoint], start) -> float:
+	func cloud_distance(pts1: Array[RecognizerPoint], pts2: Array[RecognizerPoint], start) -> float:
 		assert(pts1.size() == pts2.size())
 		var matched: Array
 		matched.resize(pts2.size())
@@ -225,7 +225,7 @@ class PDollarRecognizer:
 		var u: int = -1
 		var b: float = INF
 		for cloud_i in range(_point_clouds.size()):  # for each point-cloud template
-			var d: float = GreedyCloudMatch(candidate._points, _point_clouds[cloud_i])
+			var d: float = greedy_cloud_match(candidate._points, _point_clouds[cloud_i])
 			if d < b:
 				b = d  # best (least) distance
 				u = cloud_i  # point-cloud index
