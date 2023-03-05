@@ -243,6 +243,15 @@ var predefined_point_cloud: Dictionary = {
 	]
 }
 
+func test_assert_eq_integration_point_cloud_equal():
+	var gesture = "half-note"
+	var points = predefined_point_cloud[gesture]
+	var new_points: Array[p_dollar.RecognizerPoint]
+	for point in points:
+		new_points.push_back(point)
+	var point_cloud = p_dollar.PointCloud.new(gesture, new_points)
+	assert_eq(p_dollar.PointCloud.NUMBER_POINTS, point_cloud._points.size(), "Should be equal.")
+	
 
 func test_assert_eq_integration_string_equal():
 	var recognizer: p_dollar.PDollarRecognizer = p_dollar.PDollarRecognizer.new()
@@ -251,13 +260,14 @@ func test_assert_eq_integration_string_equal():
 		var new_points: Array[p_dollar.RecognizerPoint]
 		for point in points:
 			new_points.push_back(point)
-		recognizer.AddGesture(gesture, new_points)
+		recognizer.add_gesture(gesture, new_points)
 
 	for gesture in predefined_point_cloud.keys():
 		var points = predefined_point_cloud[gesture]
 		var new_points: Array[p_dollar.RecognizerPoint]
-		for point in points:
-			new_points.push_back(point)
+		new_points.resize(points.size())
+		for point_i in range(points.size()):
+			new_points[point_i] = points[point_i]
 		var result: p_dollar.RecognizerResult = recognizer.recognize(new_points)
-		assert_eq(gesture, result.name, "Test gestures name: %s score: %s time: %s" %[result.name, result.score, result.time])
+		assert_eq(gesture, result.name, "Test gesture %s: score: %f time: %f" %[result.name, result.score, result.time])
 
