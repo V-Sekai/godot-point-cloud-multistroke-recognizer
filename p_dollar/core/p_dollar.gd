@@ -180,18 +180,18 @@ class PointCloud:
 class DollarPRecognizer:
 	var _point_clouds: Array[PointCloud]
 
-	func greedy_cloud_match(points: Array[RecognizerPoint], P: PointCloud) -> float:
+	func _greedy_cloud_match(points: Array[RecognizerPoint], P: PointCloud) -> float:
 		var minimum = INF
 		var e = 0.50
 		var step: int = floor(pow(points.size(), 1.0 - e))
 		for i in range(0, points.size(), step):
 			var point = points[i]
-			var d1: float = cloud_distance(points, P._points, i)
-			var d2: float = cloud_distance(P._points, points, i)
+			var d1: float = _cloud_distance(points, P._points, i)
+			var d2: float = _cloud_distance(P._points, points, i)
 			minimum = min(minimum, min(d1, d2))
 		return minimum
 
-	func cloud_distance(pts1: Array[RecognizerPoint], pts2: Array[RecognizerPoint], start) -> float:
+	func _cloud_distance(pts1: Array[RecognizerPoint], pts2: Array[RecognizerPoint], start) -> float:
 		if pts1.size() != pts2.size():
 			return 0
 		var matched: Array
@@ -226,7 +226,7 @@ class DollarPRecognizer:
 		var u: int = -1
 		var b: float = INF
 		for cloud_i in range(_point_clouds.size()):  # for each point-cloud template
-			var d: float = greedy_cloud_match(candidate._points, _point_clouds[cloud_i])
+			var d: float = _greedy_cloud_match(candidate._points, _point_clouds[cloud_i])
 			if d < b:
 				b = d  # best (least) distance
 				u = cloud_i  # point-cloud index
