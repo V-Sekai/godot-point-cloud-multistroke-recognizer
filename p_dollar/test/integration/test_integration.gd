@@ -253,7 +253,7 @@ func test_assert_eq_integration_point_cloud_equal():
 	assert_eq(p_dollar.PointCloud.NUMBER_POINTS, point_cloud._points.size(), "Should be equal.")
 	
 
-func test_assert_eq_integration_string_equal():
+func test_assert_eq_integration_recognize_equal():
 	var recognizer: p_dollar.PDollarRecognizer = p_dollar.PDollarRecognizer.new()
 	for gesture in predefined_point_cloud.keys():
 		var points = predefined_point_cloud[gesture]
