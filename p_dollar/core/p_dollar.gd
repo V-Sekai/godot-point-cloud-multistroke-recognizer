@@ -85,7 +85,6 @@ class RecognizerResult:
 
 ## A point-cloud template
 class PointCloud:
-	const NUMBER_POINT_CLOUDS = 16
 	const NUMBER_POINTS = 32
 	var _name: StringName = ""
 	var _points: Array[RecognizerPoint] = []
@@ -177,6 +176,7 @@ class PointCloud:
 		_points = translate_to(_points, _origin)
 
 
+## The $P Point-Cloud Recognizer
 class DollarPRecognizer:
 	var _point_clouds: Array[PointCloud]
 
@@ -219,7 +219,6 @@ class DollarPRecognizer:
 				break
 		return sum
 
-	# The $P Point-Cloud Recognizer API begins here
 	func recognize(p_points: Array[RecognizerPoint]) -> RecognizerResult:
 		var t0: float = Time.get_ticks_msec()
 		var candidate: PointCloud = PointCloud.new("", p_points)
@@ -252,5 +251,4 @@ class DollarPRecognizer:
 
 	func delete_user_gestures():
 		_point_clouds.clear()
-		_point_clouds.resize(PointCloud.NUMBER_POINT_CLOUDS)  # Clears any beyond the original set.
-		return PointCloud.NUMBER_POINT_CLOUDS
+		return _point_clouds.size()
