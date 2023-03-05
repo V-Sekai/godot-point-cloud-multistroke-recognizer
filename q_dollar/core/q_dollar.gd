@@ -196,7 +196,7 @@ class QDollarRecognizer:
 			var LUT: Array
 			LUT.resize(LUTSize)
 			for lut in LUTSize:
-				var lut_array: Array
+				var lut_array: PackedFloat32Array
 				lut_array.resize(LUTSize)
 				LUT[lut] = lut_array
 
@@ -226,9 +226,9 @@ class QDollarRecognizer:
 
 	func _compute_lower_bound(pts1, pts2, step, LUT) -> Array:
 		var n = pts1.size();
-		var LB: Array
+		var LB: PackedFloat32Array
 		LB.resize(floor(n / step) + 1)
-		var SAT: Array
+		var SAT: PackedFloat32Array
 		SAT.resize(n)
 		LB[0] = 0.0;
 		for i in n:
