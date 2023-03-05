@@ -100,9 +100,9 @@ class QDollarRecognizer:
 	## A point-cloud template
 	class PointCloud:
 		const NUMBER_POINTS = 32
-		const MaxIntCoord = 1024; # (IntX, IntY) range from [0, MaxIntCoord - 1]
-		const LUTSize = 64; # default size of the lookup table is 64 x 64
-		const LUTScaleFactor = MaxIntCoord / LUTSize; # used to scale from (IntX, IntY) to LUT
+		const MAX_INTEGER_COORDINATE = 1024; # (IntX, IntY) range from [0, MAX_INTEGER_COORDINATE - 1]
+		const LUT_SIZE = 64; # default size of the lookup table is 64 x 64
+		const LUT_SCALE_FACTOR = MAX_INTEGER_COORDINATE / LUT_SIZE; # used to scale from (IntX, IntY) to LUT
 		var _name: StringName = ""
 		var _points: Array[RecognizerPoint] = []
 		var _origin: RecognizerPoint = RecognizerPoint.new(0, 0, 0)
@@ -188,25 +188,25 @@ class QDollarRecognizer:
 
 		func _make_integer_coordinates(points: Array[RecognizerPoint]) -> Array[RecognizerPoint]:
 			for point in points:
-				point.int_x = round((point.x + 1.0) / 2.0 * (MaxIntCoord - 1))
-				point.int_y = round((point.y + 1.0) / 2.0 * (MaxIntCoord - 1))
+				point.int_x = round((point.x + 1.0) / 2.0 * (MAX_INTEGER_COORDINATE - 1))
+				point.int_y = round((point.y + 1.0) / 2.0 * (MAX_INTEGER_COORDINATE - 1))
 			return points;
 			
 		func _compute_lut(points) -> Array:
 			var _lut: Array
-			_lut.resize(LUTSize)
-			for lut in LUTSize:
+			_lut.resize(LUT_SIZE)
+			for lut in LUT_SIZE:
 				var lut_array: PackedFloat32Array
-				lut_array.resize(LUTSize)
+				lut_array.resize(LUT_SIZE)
 				_lut[lut] = lut_array
 
-			for x in LUTSize:
-				for y in LUTSize:
+			for x in LUT_SIZE:
+				for y in LUT_SIZE:
 					var u = -1;
 					var b = INF;
 					for points_i in range(points.size()):
-						var row = round(points[points_i].int_x / LUTScaleFactor);
-						var col = round(points[points_i].int_y / LUTScaleFactor);
+						var row = round(points[points_i].int_x / LUT_SCALE_FACTOR);
+						var col = round(points[points_i].int_y / LUT_SCALE_FACTOR);
 						var d = ((row - x) * (row - x)) + ((col - y) * (col - y));
 						if (d < b):
 							b = d
@@ -232,8 +232,8 @@ class QDollarRecognizer:
 		SAT.resize(n)
 		LB[0] = 0.0;
 		for i in n:
-			var x: int = round(pts1[i].int_x / PointCloud.LUTScaleFactor);
-			var y: int = round(pts1[i].int_y / PointCloud.LUTScaleFactor);
+			var x: int = round(pts1[i].int_x / PointCloud.LUT_SCALE_FACTOR);
+			var y: int = round(pts1[i].int_y / PointCloud.LUT_SCALE_FACTOR);
 			var index: int = _lut[x][y];
 			var d: float = Vector2(pts1[i].x, pts1[i].y).distance_squared_to(Vector2(pts2[index].x, pts2[index].y))
 			if i == 0:
