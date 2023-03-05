@@ -177,7 +177,7 @@ class PointCloud:
 		_points = translate_to(_points, _origin)
 
 
-class PDollarRecognizer:
+class DollarPRecognizer:
 	var _point_clouds: Array[PointCloud]
 
 	func greedy_cloud_match(points: Array[RecognizerPoint], P: PointCloud) -> float:
