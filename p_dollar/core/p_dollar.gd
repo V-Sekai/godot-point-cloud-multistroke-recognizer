@@ -242,7 +242,7 @@ class DollarPRecognizer:
 	func add_gesture(p_name: StringName, p_points: Array[RecognizerPoint]) -> int:
 		if not p_points.size():
 			return 0
-		var new_point_cloud : PointCloud = PointCloud.new(p_name, p_points)
+		var new_point_cloud: PointCloud = PointCloud.new(p_name, p_points)
 		_point_clouds.push_back(new_point_cloud)
 		var num: int = 0
 		for cloud in _point_clouds:
