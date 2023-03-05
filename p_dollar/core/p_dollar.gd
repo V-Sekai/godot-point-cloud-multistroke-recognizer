@@ -192,7 +192,8 @@ class PDollarRecognizer:
 		return minimum
 
 	func cloud_distance(pts1: Array[RecognizerPoint], pts2: Array[RecognizerPoint], start) -> float:
-		assert(pts1.size() == pts2.size())
+		if pts1.size() != pts2.size():
+			return 0
 		var matched: Array
 		matched.resize(pts2.size())
 		for k in pts2.size():
